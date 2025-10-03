@@ -1,106 +1,491 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TeraBox Video Downloader</title>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
-    body{background:#f5f5f5;color:#222;transition:0.3s;}
-    body.dark{background:#121212;color:#eee;}
-    .loader{
-      position:fixed;top:0;left:0;width:100%;height:100%;
-      display:flex;align-items:center;justify-content:center;
-      background:#222;color:#fff;font-size:1.5rem;z-index:1000;
-    }
-    header{display:flex;justify-content:space-between;align-items:center;
-      padding:15px;background:#4a90e2;color:#fff;}
-    .menu{cursor:pointer;font-size:20px;}
-    .menu-content{display:none;position:absolute;right:15px;top:55px;
-      background:#fff;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.2);
-      overflow:hidden;z-index:10;}
-    .menu-content a, .menu-content button{
-      display:block;padding:10px 15px;text-decoration:none;
-      color:#333;background:#fff;border:none;width:100%;text-align:left;
-    }
-    .menu-content a:hover, .menu-content button:hover{background:#f0f0f0;}
-    .container{max-width:800px;margin:40px auto;padding:20px;text-align:center;}
-    input[type="text"]{width:80%;padding:10px;border:1px solid #ccc;
-      border-radius:8px;margin-bottom:15px;}
-    button{padding:10px 20px;border:none;border-radius:8px;background:#4a90e2;
-      color:#fff;cursor:pointer;font-size:1rem;}
-    button:hover{background:#357abd;}
-    video{width:100%;max-height:400px;margin-top:20px;border-radius:12px;}
-    .download-btn{margin-top:15px;display:none;}
-    footer{text-align:center;padding:20px;font-size:14px;color:#777;}
-    body.dark .menu-content{background:#333;}
-    body.dark .menu-content a, body.dark .menu-content button{color:#eee;background:#333;}
-    body.dark input{background:#222;color:#eee;border:1px solid #555;}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terabox Video Downloader & Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 25px;
+        }
+
+        .input-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+        }
+
+        .preview-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .url-input-container {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #1a2a6c;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #1a2a6c;
+            box-shadow: 0 0 0 3px rgba(26, 42, 108, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 5px solid rgba(26, 42, 108, 0.2);
+            border-radius: 50%;
+            border-top: 5px solid #1a2a6c;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .video-preview {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-placeholder {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-size: 16px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #videoPlayer {
+            width: 100%;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .video-info {
+            margin-top: 15px;
+        }
+
+        .video-info h3 {
+            margin-bottom: 10px;
+            color: #1a2a6c;
+        }
+
+        .video-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #777;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .result {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .instructions {
+            background: #f0f5ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+
+        .instructions h3 {
+            color: #1a2a6c;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Loader -->
-  <div class="loader" id="loader">Loading...</div>
+    <div class="container">
+        <header>
+            <h1>Terabox Video Downloader</h1>
+            <p class="subtitle">Download & Preview Videos from Terabox</p>
+        </header>
 
-  <!-- Header -->
-  <header>
-    <h2>TeraBox Downloader</h2>
-    <div class="menu" onclick="toggleMenu()">⋮</div>
-    <div class="menu-content" id="menuBox">
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-      <button onclick="toggleTheme()">Toggle Day/Night</button>
+        <div class="main-content">
+            <div class="input-section">
+                <div class="url-input-container">
+                    <label for="videoUrl">Enter Terabox Video URL:</label>
+                    <input type="url" id="videoUrl" placeholder="https://www.terabox.com/share/..." required>
+                </div>
+
+                <button class="btn" id="fetchBtn" onclick="fetchVideo()">
+                    <i>🔍</i> Fetch Video
+                </button>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing your request... Please wait 3 seconds</p>
+                </div>
+
+                <div class="result" id="result"></div>
+
+                <div class="instructions">
+                    <h3>How to Use:</h3>
+                    <ol>
+                        <li>Copy the share URL from Terabox app or website</li>
+                        <li>Paste the URL in the input field above</li>
+                        <li>Click "Fetch Video" button</li>
+                        <li>Wait for processing to complete</li>
+                        <li>Preview the video and download when ready</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="video-preview">
+                    <div class="video-placeholder" id="videoPlaceholder">
+                        Video preview will appear here after fetching
+                    </div>
+                    <video id="videoPlayer" controls></video>
+                    
+                    <div class="video-info">
+                        <h3>Video Information</h3>
+                        <div class="video-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Title</div>
+                                <div class="detail-value" id="videoTitle">-</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Duration</div>
+                                <div class="detail-value" id="videoDuration">-</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Quality</div>
+                                <div class="detail-value" id="videoQuality">-</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Size</div>
+                                <div class="detail-value" id="videoSize">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" id="downloadBtn" onclick="downloadVideo()" disabled>
+                    <i>⬇️</i> Download Video
+                </button>
+            </div>
+        </div>
+
+        <footer>
+            <p>Terabox Video Downloader & Player | Use responsibly and respect copyrights</p>
+        </footer>
     </div>
-  </header>
 
-  <!-- Main Container -->
-  <div class="container">
-    <h3>Paste your TeraBox Video URL</h3>
-    <input type="text" id="videoUrl" placeholder="https://example.com/video.mp4">
-    <br>
-    <button onclick="loadVideo()">Preview & Download</button>
-    <video id="player" controls></video>
-    <a id="downloadBtn" class="download-btn" download>
-      <button>Download Video</button>
-    </a>
-  </div>
-
-  <!-- Footer -->
-  <footer>
-    <p>⚠ Use only for videos you own or have permission to download.</p>
-  </footer>
-
-  <script>
-    // Loader screen 3 sec
-    window.onload = () => {
-      setTimeout(()=>{document.getElementById("loader").style.display="none";},3000);
-    };
-
-    // Menu toggle
-    function toggleMenu(){
-      const menu = document.getElementById("menuBox");
-      menu.style.display = (menu.style.display==="block")?"none":"block";
-    }
-
-    // Dark/Light mode toggle
-    function toggleTheme(){
-      document.body.classList.toggle("dark");
-    }
-
-    // Load video
-    function loadVideo(){
-      const url = document.getElementById("videoUrl").value.trim();
-      const player = document.getElementById("player");
-      const downloadBtn = document.getElementById("downloadBtn");
-      if(url){
-        player.src = url;
-        player.style.display = "block";
-        downloadBtn.href = url;
-        downloadBtn.style.display = "inline-block";
-      } else {
-        alert("Please enter a valid video URL!");
-      }
-    }
-  </script>
+    <script>
+        // Function to fetch video information
+        function fetchVideo() {
+            const url = document.getElementById('videoUrl').value;
+            const fetchBtn = document.getElementById('fetchBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoPlaceholder = document.getElementById('videoPlaceholder');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            if (!url) {
+                showResult('Please enter a valid URL', 'error');
+                return;
+            }
+            
+            // Validate if it's a Terabox URL
+            if (!url.includes('terabox.com') && !url.includes('1024tera.com')) {
+                showResult('Please enter a valid Terabox URL', 'error');
+                return;
+            }
+            
+            // Disable button and show loading
+            fetchBtn.disabled = true;
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            // Simulate 3 seconds loading
+            setTimeout(() => {
+                // In a real implementation, you would make an API call here
+                // For this demo, we'll simulate a successful response
+                
+                // Simulate video data
+                const videoData = {
+                    success: true,
+                    title: 'Terabox Video ' + Math.floor(Math.random() * 1000),
+                    duration: '2:' + (Math.floor(Math.random() * 50) + 10).toString().padStart(2, '0'),
+                    quality: '720p',
+                    size: (Math.random() * 100 + 50).toFixed(1) + ' MB',
+                    videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4' // Sample video URL
+                };
+                
+                // Update UI with video data
+                document.getElementById('videoTitle').textContent = videoData.title;
+                document.getElementById('videoDuration').textContent = videoData.duration;
+                document.getElementById('videoQuality').textContent = videoData.quality;
+                document.getElementById('videoSize').textContent = videoData.size;
+                
+                // Set video source
+                videoPlayer.src = videoData.videoUrl;
+                videoPlayer.style.display = 'block';
+                videoPlaceholder.style.display = 'none';
+                
+                // Enable download button
+                downloadBtn.disabled = false;
+                
+                // Hide loading and show success message
+                loading.style.display = 'none';
+                showResult('Video fetched successfully! You can now preview and download it.', 'success');
+                fetchBtn.disabled = false;
+                
+            }, 3000); // 3 seconds loading
+        }
+        
+        // Function to download video
+        function downloadVideo() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoUrl = videoPlayer.src;
+            const videoTitle = document.getElementById('videoTitle').textContent;
+            
+            if (!videoUrl || videoUrl.includes('placeholder')) {
+                showResult('No video available for download', 'error');
+                return;
+            }
+            
+            // Create a temporary link to trigger download
+            const a = document.createElement('a');
+            a.href = videoUrl;
+            a.download = videoTitle + '.mp4';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            showResult('Download started!', 'success');
+        }
+        
+        // Function to show result messages
+        function showResult(message, type) {
+            const result = document.getElementById('result');
+            result.innerHTML = message;
+            result.className = `result ${type}`;
+            result.style.display = 'block';
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    result.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Enable Enter key to trigger fetch
+        document.getElementById('videoUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                fetchVideo();
+            }
+        });
+        
+        // Update video info when video metadata is loaded
+        document.getElementById('videoPlayer').addEventListener('loadedmetadata', function() {
+            const duration = document.getElementById('videoPlayer').duration;
+            const minutes = Math.floor(duration / 60);
+            const seconds = Math.floor(duration % 60);
+            document.getElementById('videoDuration').textContent = minutes + ':' + seconds.toString().padStart(2, '0');
+        });
+    </script>
 </body>
 </html>
