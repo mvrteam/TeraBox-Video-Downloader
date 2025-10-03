@@ -1,1 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeraBox Video Downloader</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+    body{background:#f5f5f5;color:#222;transition:0.3s;}
+    body.dark{background:#121212;color:#eee;}
+    .loader{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      display:flex;align-items:center;justify-content:center;
+      background:#222;color:#fff;font-size:1.5rem;z-index:1000;
+    }
+    header{display:flex;justify-content:space-between;align-items:center;
+      padding:15px;background:#4a90e2;color:#fff;}
+    .menu{cursor:pointer;font-size:20px;}
+    .menu-content{display:none;position:absolute;right:15px;top:55px;
+      background:#fff;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.2);
+      overflow:hidden;z-index:10;}
+    .menu-content a, .menu-content button{
+      display:block;padding:10px 15px;text-decoration:none;
+      color:#333;background:#fff;border:none;width:100%;text-align:left;
+    }
+    .menu-content a:hover, .menu-content button:hover{background:#f0f0f0;}
+    .container{max-width:800px;margin:40px auto;padding:20px;text-align:center;}
+    input[type="text"]{width:80%;padding:10px;border:1px solid #ccc;
+      border-radius:8px;margin-bottom:15px;}
+    button{padding:10px 20px;border:none;border-radius:8px;background:#4a90e2;
+      color:#fff;cursor:pointer;font-size:1rem;}
+    button:hover{background:#357abd;}
+    video{width:100%;max-height:400px;margin-top:20px;border-radius:12px;}
+    .download-btn{margin-top:15px;display:none;}
+    footer{text-align:center;padding:20px;font-size:14px;color:#777;}
+    body.dark .menu-content{background:#333;}
+    body.dark .menu-content a, body.dark .menu-content button{color:#eee;background:#333;}
+    body.dark input{background:#222;color:#eee;border:1px solid #555;}
+  </style>
+</head>
+<body>
+  <!-- Loader -->
+  <div class="loader" id="loader">Loading...</div>
 
+  <!-- Header -->
+  <header>
+    <h2>TeraBox Downloader</h2>
+    <div class="menu" onclick="toggleMenu()">⋮</div>
+    <div class="menu-content" id="menuBox">
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <button onclick="toggleTheme()">Toggle Day/Night</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <h3>Paste your TeraBox Video URL</h3>
+    <input type="text" id="videoUrl" placeholder="https://example.com/video.mp4">
+    <br>
+    <button onclick="loadVideo()">Preview & Download</button>
+    <video id="player" controls></video>
+    <a id="downloadBtn" class="download-btn" download>
+      <button>Download Video</button>
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>⚠ Use only for videos you own or have permission to download.</p>
+  </footer>
+
+  <script>
+    // Loader screen 3 sec
+    window.onload = () => {
+      setTimeout(()=>{document.getElementById("loader").style.display="none";},3000);
+    };
+
+    // Menu toggle
+    function toggleMenu(){
+      const menu = document.getElementById("menuBox");
+      menu.style.display = (menu.style.display==="block")?"none":"block";
+    }
+
+    // Dark/Light mode toggle
+    function toggleTheme(){
+      document.body.classList.toggle("dark");
+    }
+
+    // Load video
+    function loadVideo(){
+      const url = document.getElementById("videoUrl").value.trim();
+      const player = document.getElementById("player");
+      const downloadBtn = document.getElementById("downloadBtn");
+      if(url){
+        player.src = url;
+        player.style.display = "block";
+        downloadBtn.href = url;
+        downloadBtn.style.display = "inline-block";
+      } else {
+        alert("Please enter a valid video URL!");
+      }
+    }
+  </script>
+</body>
+</html>
